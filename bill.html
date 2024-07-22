@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bill System</title>
+
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f8f9fa;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    h2 {
+      color: #007bff;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+      border: 1px solid #ced4da;
+      border-radius: 4px;
+    }
+
+    table {
+      width: 100%;
+      margin-top: 20px;
+      border-collapse: collapse;
+    }
+
+    th,
+    td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+
+    .delete-button {
+      cursor: pointer;
+      background-color: #dc3545;
+      color: #fff;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+    }
+
+    .delete-button:hover {
+      background-color: #c82333;
+    }
+
+    .btn-success,
+    .btn-primary {
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-success:hover,
+    .btn-primary:hover {
+      background-color: #218838;
+    }
+
+    p {
+      margin: 0;
+    }
+
+    .text-right {
+      text-align: right;
+    }
+
+    #total,
+    #taxAmount,
+    #due,
+    #balance {
+      font-weight: bold;
+    }
+
+    .flex-container {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .flex-item {
+      flex-basis: 48%;
+    }
+
+    #discountAmount {
+      font-weight: bold;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container mt-5">
+    <div class="text-center mb-4">
+      <h2>Bill System</h2>
+    </div>
+
+    <!-- Customer Information -->
+    <div class="form-group">
+      <div style="display: flex; justify-content: space-between;">
+        <div style="flex-basis: 48%;">
+          <label for="customerName">Customer Name:</label>
+          <input type="text" id="customerName">
+        </div>
+        <div style="flex-basis: 48%;">
+          <label for="mobileNumber">Mobile Number:</label>
+          <input type="text" id="mobileNumber">
+        </div>
+      </div>
+    </div>
+
+    <!-- Bill Number and Date & Time -->
+    <div class="form-group">
+      <div style="display: flex; justify-content: space-between;">
+        <div style="flex-basis: 48%;">
+          <span id="billNumber">Bill Number: 1</span>
+        </div>
+        <div style="flex-basis: 48%;">
+          <span id="dateTime">Date & Time: </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bill Items Table -->
+    <table>
+      <thead>
+        <tr>
+          <th>Action</th>
+          <th>Product Name</th>
+          <th>Quantity</th>
+          <th>Price</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody id="bill-items">
+        <tr id="row1">
+          <td></td>
+          <td><input type="text" id="product1" onkeyup="calculateAmount(1)"></td>
+          <td><input type="number" id="quantity1" min="1" onkeyup="calculateAmount(1)"></td>
+          <td><input type="number" id="price1" min="0.01" step="0.01" onkeyup="calculateAmount(1)"></td>
+          <td id="total1">$0.00</td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+    <button class="btn btn-success" onclick="addRow()">Add Row</button>
+    <br><br><br>
+
+    <!-- Summary and Additional Information -->
+    <div class="flex-container">
+
+
+      <div class="form-group text-right">
+        <p id="discountAmount">Discount: $0.00</p>
+        <input type="number" id="discount" min="0" max="100" onkeyup="calculateDiscount()">
+      </div>
+
+
+
+
+      <div class="form-group text-right">
+        <p id="total">Total Amount: $0.00</p>
+      </div>
+
+      <div class="form-group">
+        <label for="paid">Paid Amount ($):</label>
+        <input type="number" id="paid" min="0" onkeyup="calculateDue()">
+      </div>
+    </div>
+
+    <!-- Due, Balance, and Print Bill Button -->
+    <div class="flex-container">
+      
+      <div class="flex-item">
+        <div class="form-group text-right">
+          <p id="taxAmount">Tax Amount: $0.00</p>
+        </div>
+      </div>
+
+      <div class="flex-item">
+        <div class="form-group text-right">
+          <p id="balance">Balance: $0.00</p>
+        </div>
+      </div>
+
+      <div class="flex-item">
+        <div class="form-group text-right">
+          <p id="due">Due Amount: $0.00</p>
+        </div>
+      </div>
+
+      <div class="flex-item">
+        <div class="form-group text-right">
+          <button class="btn btn-primary" onclick="printBill()">Print Bill</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+  <script>
+    let rowCount = 1;
+    let billCounter = 1;
+    let taxRate = 0.0; // Default tax rate is zero
+    let discountRate = 0.0; // Default discount rate is zero
+
+    function addRow() {
+      rowCount++;
+      const table = $('#bill-items');
+      const newRow = $('<tr>').attr('id', `row${rowCount}`);
+      newRow.append('<td><button class="btn btn-danger delete-button" onclick="deleteRow(' + rowCount + ')">Delete</button></td>');
+      newRow.append('<td><input type="text"  id="product' + rowCount + '" onkeyup="calculateAmount(' + rowCount + ')"></td>');
+      newRow.append('<td><input type="number"  id="quantity' + rowCount + '" min="1" onkeyup="calculateAmount(' + rowCount + ')"></td>');
+      newRow.append('<td><input type="number"  id="price' + rowCount + '" min="0.01" step="0.01" onkeyup="calculateAmount(' + rowCount + ')"></td>');
+      newRow.append('<td><span id="total' + rowCount + '">$0.00</span></td>');
+      table.append(newRow);
+    }
+
+    function calculateAmount(rowNum) {
+      const quantity = parseFloat($('#quantity' + rowNum).val()) || 0;
+      const price = parseFloat($('#price' + rowNum).val()) || 0;
+      const total = quantity * price;
+      $('#total' + rowNum).text('$' + total.toFixed(2));
+      calculateTotal();
+    }
+
+    function calculateTotal() {
+      let total = 0;
+      for (let i = 1; i <= rowCount; i++) {
+        const totalForRow = parseFloat($('#total' + i).text().slice(1)) || 0;
+        total += totalForRow;
+      }
+
+      const taxAmount = total * taxRate;
+      const discountAmount = total * discountRate;
+      const totalWithTaxDiscount = total + taxAmount - discountAmount;
+
+      $('#total').text('Total: $' + totalWithTaxDiscount.toFixed(2));
+      $('#taxAmount').text('Tax: $' + taxAmount.toFixed(2));
+      $('#discountAmount').text('Discount: $' + discountAmount.toFixed(2));
+
+      calculateDue();
+    }
+
+    function calculateDue() {
+      const paid = parseFloat($('#paid').val()) || 0;
+      const total = parseFloat($('#total').text().split('$')[1]) || 0;
+
+      let due = total - paid;
+      let balance = 0;
+
+      if (due < 0) {
+        balance = -due; // Calculate the balance
+        due = 0;  // Set due amount to zero
+      }
+
+      $('#due').text('Due: $' + due.toFixed(2));
+      $('#balance').text('Balance: $' + balance.toFixed(2));
+    }
+
+    function calculateDiscount() {
+      const discountPercentage = parseFloat($('#discount').val()) || 0;
+      discountRate = discountPercentage / 100;
+
+      calculateTotal();
+    }
+
+    function deleteRow(rowNum) {
+      const rowToDelete = $('#row' + rowNum);
+      if (rowToDelete) {
+        rowToDelete.remove();
+        calculateTotal();  // Update the total after deleting a row
+        calculateDue();    // Update the due amount after deleting a row
+      }
+    }
+
+    function printBill() {
+      window.print();
+    }
+
+    function returnPaidAmount() {
+      const total = parseFloat($('#total').text().split('$')[1]) || 0;
+      return total;
+    }
+
+    function generateBillNumberAndDateTime() {
+      const now = new Date();
+      const formattedDateTime = now.toLocaleString();
+      $('#billNumber').text(`Bill No. ${billCounter}`);
+      $('#dateTime').text(`D & T  ${formattedDateTime}`);
+      billCounter++;
+    }
+
+    generateBillNumberAndDateTime();
+  </script>
+</body>
+
+</html>
